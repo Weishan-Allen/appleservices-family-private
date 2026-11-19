@@ -38,7 +38,6 @@ type Server struct {
 	http      *http.Server
 	token     string
 	launchMu  sync.Mutex
-	fiMu      sync.Mutex
 	mu        sync.Mutex
 	launching bool
 	message   string
@@ -1091,10 +1090,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if strings.HasPrefix(r.URL.Path, "/api/") {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		if r.Method == http.MethodPost && r.URL.Path == "/api/fi/action" {
-			s.serveFIAction(w, r)
-			return
-		}
 		origin := r.Header.Get("Origin")
 		if (origin != "" && origin != s.URL()) || subtle.ConstantTimeCompare([]byte(r.Header.Get("X-App-Token")), []byte(s.token)) != 1 {
 			http.Error(w, `{"message":"请刷新面板后重试"}`, 403)
